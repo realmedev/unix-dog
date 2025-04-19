@@ -1,15 +1,10 @@
 import sys
 import argparse
+import utils
 
 consecutive_blank_lines = 0
 line_number = 1
 LINE_ADJUSTMENT = 8
-
-def print_unbuffered(data=""):
-    print(data, flush=True, end="")
-
-def print_unbuffered_line(data=""):
-    print(data, flush=True)
 
 def create_parser():
     parser = argparse.ArgumentParser(prog="dog",
@@ -128,13 +123,13 @@ def process_blank_line(args):
     line_end = "$" if args.show_ends or args.show_all or args.e else ""
 
     if args.number_nonblank:
-        print_unbuffered_line("{}".format(line_end))
+        utils.print_unbuffered_line("{}".format(line_end))
     elif args.number:
         adjustment = len(line_end) + LINE_ADJUSTMENT
-        print_unbuffered_line("{0}  {1}".format(line_number, line_end).rjust(adjustment))
+        utils.print_unbuffered_line("{0}  {1}".format(line_number, line_end).rjust(adjustment))
         line_number += 1
     else:
-        print_unbuffered_line("{}".format(line_end))
+        utils.print_unbuffered_line("{}".format(line_end))
         line_number += 1
 
 def process_regular_line(line, args):
@@ -161,9 +156,9 @@ def process_regular_line(line, args):
 
     if args.number or args.number_nonblank:
         adjustment = len(output) + LINE_ADJUSTMENT
-        print_unbuffered("{0}  {1}".format(line_number, output).rjust(adjustment))
+        utils.print_unbuffered("{0}  {1}".format(line_number, output).rjust(adjustment))
     else:
-        print_unbuffered(output)
+        utils.print_unbuffered(output)
 
     line_number += 1
 

@@ -1,11 +1,11 @@
 import sys
 import argparse
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = create_parser()
     return parser.parse_args()
 
-def create_parser():
+def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="dog",
                                      description="Concatenate FILE(s) to standard output.\n\nWith no FILE, or when FILE is -, read standard input.",
                                      usage="dog [OPTION]... [FILE]...",

@@ -1,5 +1,6 @@
-import utils
 import sys
+import utils
+import argparse
 
 consecutive_blank_lines = 0
 line_number = 1
@@ -7,10 +8,10 @@ LINE_ADJUSTMENT = 8
 
 class FileProcessor:
 
-    def is_control(self, c):
+    def is_control(self, c: int) -> bool:
         return c >= 0 and c < 32
 
-    def process_control(self, c, c_value, args):
+    def process_control(self, c: str, c_value: int, args: argparse.Namespace) -> str:
         if c == "\n":
             if args.show_ends or args.show_all or args.e:
                 return "$\n"
@@ -27,24 +28,24 @@ class FileProcessor:
 
         return ""
 
-    def is_alphanumeric(self, c):
+    def is_alphanumeric(self, c: int) -> bool:
         return c >= 32 and c < 127
 
-    def process_alphanumeric(self, c):
+    def process_alphanumeric(self, c: str) -> str:
         return c
 
-    def is_del(self, c):
+    def is_del(self, c: int) -> bool:
         return c == 127
 
-    def process_del(self, args):
+    def process_del(self, args: argparse.Namespace) -> str:
         if args.show_nonprinting or args.t or args.e or args.show_all:
            return "^?"
         return ""
 
-    def is_extended_ascii(self, c):
+    def is_extended_ascii(self, c: int) -> bool:
         return c > 127 and c < 256
 
-    def process_extended_ascii(self, c_value, args):
+    def process_extended_ascii(self, c_value: int, args: argparse.Namespace) -> str:
         if args.show_nonprinting or args.t or args.e or args.show_all:
             if c_value < 160:
                 return "M-^{0}".format(chr(c_value - 128 + 64))
@@ -56,10 +57,10 @@ class FileProcessor:
 
         return ""
 
-    def is_blank_line(self, line):
+    def is_blank_line(self, line: str) -> bool:
         return line.strip() == ""
 
-    def process_blank_line(self, args):
+    def process_blank_line(self, args: argparse.Namespace):
         global line_number
         global consecutive_blank_lines
         consecutive_blank_lines += 1
@@ -79,7 +80,7 @@ class FileProcessor:
             utils.print_unbuffered_line("{}".format(line_end))
             line_number += 1
 
-    def process_regular_line(self, line, args):
+    def process_regular_line(self, line: str, args: argparse.Namespace):
         global line_number
         global consecutive_blank_lines
 
@@ -109,10 +110,8 @@ class FileProcessor:
 
         line_number += 1
 
-    def process_line(self,line, args):
+    def process_line(self, line: str, args: argparse.Namespace):
         if self.is_blank_line(line):
             self.process_blank_line(args)
         else:
             self.process_regular_line(line, args)
-
-

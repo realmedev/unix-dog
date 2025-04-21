@@ -5,7 +5,8 @@ import file_processor as fp
 def process_files(args):
     for file in args.FILE:
         for line in file:
-            fp.process_line(line, args)
+            file_proc = fp.FileProcessor()
+            file_proc.process_line(line, args)
 
 def run_cli():
     args = cli.parse_args()

@@ -3,10 +3,15 @@ import cli
 import file_processor as fp
 
 def process_files(args):
-    for file in args.FILE:
-        for line in file:
-            file_proc = fp.FileProcessor()
-            file_proc.process_line(line, args)
+    for filepath in args.FILE:
+        file_proc = fp.FileProcessor(filepath, args)
+
+        file_proc.open()
+
+        while (line := file_proc.getline()) != "":
+            file_proc.process_line(line)
+
+        file_proc.close()
 
 def run_cli():
     args = cli.parse_args()

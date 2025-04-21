@@ -54,8 +54,8 @@ def create_parser() -> argparse.ArgumentParser:
                         help="output version information and exit")
     parser.add_argument("FILE",
                         nargs="*",
-                        type=argparse.FileType("r"),
-                        default=sys.stdin)
+                        type=str,
+                        default="-")
 #    parser.add_argument("--help", help="display this help and exit")
     return parser
 

@@ -1,4 +1,5 @@
 import sys
+import utils
 import argparse
 
 line_number = 1
@@ -22,7 +23,7 @@ class FileProcessor:
         return self.file.readline()
 
     def process_line(self, line: str) -> str:
-        if self._is_blank_line(line):
+        if utils.is_blank_line(line):
             return self._process_blank_line()
         else:
             return self._process_regular_line(line)
@@ -75,9 +76,6 @@ class FileProcessor:
                     return "M-{0}".format(chr(c_value - 160 + 32))
 
         return ""
-
-    def _is_blank_line(self, line: str) -> bool:
-        return line.strip() == ""
 
     def _process_blank_line(self):
         global line_number

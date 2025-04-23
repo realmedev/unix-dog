@@ -23,26 +23,26 @@ class FileProcessor:
 
     def process_line(self, line: str) -> str:
         if self._is_blank_line(line):
-            return self._process_blank_line(self.args)
+            return self._process_blank_line()
         else:
-            return self._process_regular_line(line, self.args)
+            return self._process_regular_line(line)
 
     def _is_control(self, c: int) -> bool:
         return c >= 0 and c < 32
 
-    def _process_control(self, c: str, c_value: int, args: argparse.Namespace) -> str:
+    def _process_control(self, c: str, c_value: int) -> str:
         if c == "\n":
-            if args.show_ends or args.show_all or args.e:
+            if self.args.show_ends or self.args.show_all or self.args.e:
                 return "$\n"
             else:
                 return c
         elif c == "\t":
-            if args.show_tabs or args.t:
+            if self.args.show_tabs or self.args.t:
                 return "^I"
             else:
                 return c
         else:
-            if args.show_nonprinting or args.t or args.e or args.show_all:
+            if self.args.show_nonprinting or self.args.t or self.args.e or self.args.show_all:
                 return "^{0}".format(chr(c_value + 64))
 
         return ""
@@ -56,16 +56,16 @@ class FileProcessor:
     def _is_del(self, c: int) -> bool:
         return c == 127
 
-    def _process_del(self, args: argparse.Namespace) -> str:
-        if args.show_nonprinting or args.t or args.e or args.show_all:
+    def _process_del(self) -> str:
+        if self.args.show_nonprinting or self.args.t or self.args.e or self.args.show_all:
            return "^?"
         return ""
 
     def _is_extended_ascii(self, c: int) -> bool:
         return c > 127 and c < 256
 
-    def _process_extended_ascii(self, c_value: int, args: argparse.Namespace) -> str:
-        if args.show_nonprinting or args.t or args.e or args.show_all:
+    def _process_extended_ascii(self, c_value: int) -> str:
+        if self.args.show_nonprinting or self.args.t or self.args.e or self.args.show_all:
             if c_value < 160:
                 return "M-^{0}".format(chr(c_value - 128 + 64))
             else:
@@ -79,21 +79,21 @@ class FileProcessor:
     def _is_blank_line(self, line: str) -> bool:
         return line.strip() == ""
 
-    def _process_blank_line(self, args: argparse.Namespace):
+    def _process_blank_line(self):
         global line_number
 
         self.consecutive_blank_lines += 1
 
-        if self.consecutive_blank_lines > 1 and args.squeeze_blank:
+        if self.consecutive_blank_lines > 1 and self.args.squeeze_blank:
             return ""
 
-        line_end = "$\n" if args.show_ends or args.show_all or args.e else "\n"
+        line_end = "$\n" if self.args.show_ends or self.args.show_all or self.args.e else "\n"
 
         output = ""
 
-        if args.number_nonblank:
+        if self.args.number_nonblank:
             output = f"{line_end}"
-        elif args.number:
+        elif self.args.number:
             line_number += 1
             output = f"{line_number}  {line_end}"
         else:
@@ -102,7 +102,7 @@ class FileProcessor:
 
         return output
 
-    def _process_regular_line(self, line: str, args: argparse.Namespace) -> str:
+    def _process_regular_line(self, line: str) -> str:
         global line_number
 
         self.consecutive_blank_lines = 0
@@ -113,16 +113,16 @@ class FileProcessor:
             if self._is_alphanumeric(c_value):
                 output += self._process_alphanumeric(c)
             elif self._is_control(c_value):
-                output += self._process_control(c, c_value, args)
+                output += self._process_control(c, c_value)
             elif self._is_del(c_value):
-                output += self._process_del(args)
+                output += self._process_del()
             elif self._is_extended_ascii(c_value):
-                output += self._process_extended_ascii(c_value, args)
+                output += self._process_extended_ascii(c_value)
             else:
                 print("Unrecognized character", file=sys.stderr)
                 return "" 
 
-        if args.number or args.number_nonblank:
+        if self.args.number or self.args.number_nonblank:
             output = f"{line_number}  {output}"
 
         line_number += 1

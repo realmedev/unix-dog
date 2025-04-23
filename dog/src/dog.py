@@ -1,15 +1,17 @@
 import sys
 import cli
 import file_processor as fp
+import utils
 
 def process_files(args):
     for filepath in args.FILE:
         file_proc = fp.FileProcessor(filepath, args)
-
         file_proc.open()
 
         while (line := file_proc.getline()) != "":
-            file_proc.process_line(line)
+            output = file_proc.process_line(line)
+            output = utils.format_output(output, args)
+            utils.print_unbuffered(output)
 
         file_proc.close()
 

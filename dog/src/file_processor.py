@@ -1,15 +1,13 @@
 import sys
-import utils
 import argparse
 
-consecutive_blank_lines = 0
 line_number = 1
-LINE_ADJUSTMENT = 8
 
 class FileProcessor:
     def __init__(self, filepath: str, args: argparse.Namespace):
         self.filepath = filepath
         self.args = args
+        self.consecutive_blank_lines = 0
 
     def open(self):
         if self.filepath == "-":
@@ -83,26 +81,22 @@ class FileProcessor:
 
     def _process_blank_line(self, args: argparse.Namespace):
         global line_number
-        global consecutive_blank_lines
-        consecutive_blank_lines += 1
 
-        if consecutive_blank_lines > 1 and args.squeeze_blank:
+        self.consecutive_blank_lines += 1
+
+        if self.consecutive_blank_lines > 1 and args.squeeze_blank:
             return ""
 
-        line_end = "$" if args.show_ends or args.show_all or args.e else ""
+        line_end = "$\n" if args.show_ends or args.show_all or args.e else "\n"
 
         output = ""
 
         if args.number_nonblank:
-            utils.print_unbuffered_line("{}".format(line_end))
             output = f"{line_end}"
         elif args.number:
-            adjustment = len(line_end) + LINE_ADJUSTMENT
-            utils.print_unbuffered_line("{0}  {1}".format(line_number, line_end).rjust(adjustment))
             line_number += 1
             output = f"{line_number}  {line_end}"
         else:
-            utils.print_unbuffered_line("{}".format(line_end))
             line_number += 1
             output = f"{line_end}"
 
@@ -110,10 +104,8 @@ class FileProcessor:
 
     def _process_regular_line(self, line: str, args: argparse.Namespace) -> str:
         global line_number
-        global consecutive_blank_lines
 
-        consecutive_blank_lines = 0
-
+        self.consecutive_blank_lines = 0
         output = ""
 
         for c in line:
@@ -131,10 +123,8 @@ class FileProcessor:
                 return "" 
 
         if args.number or args.number_nonblank:
-            adjustment = len(output) + LINE_ADJUSTMENT
-            utils.print_unbuffered("{0}  {1}".format(line_number, output).rjust(adjustment))
-        else:
-            utils.print_unbuffered(output)
+            output = f"{line_number}  {output}"
 
         line_number += 1
+
         return output

@@ -2,8 +2,6 @@ import sys
 import utils
 import argparse
 
-line_number = 1
-
 class FileProcessor:
     def __init__(self, filepath: str, args: argparse.Namespace):
         self.filepath = filepath
@@ -78,31 +76,16 @@ class FileProcessor:
         return ""
 
     def _process_blank_line(self):
-        global line_number
-
         self.consecutive_blank_lines += 1
 
         if self.consecutive_blank_lines > 1 and self.args.squeeze_blank:
             return ""
 
-        line_end = "$\n" if self.args.show_ends or self.args.show_all or self.args.e else "\n"
-
-        output = ""
-
-        if self.args.number_nonblank:
-            output = f"{line_end}"
-        elif self.args.number:
-            line_number += 1
-            output = f"{line_number}  {line_end}"
-        else:
-            line_number += 1
-            output = f"{line_end}"
+        output = "$\n" if self.args.show_ends or self.args.show_all or self.args.e else "\n"
 
         return output
 
     def _process_regular_line(self, line: str) -> str:
-        global line_number
-
         self.consecutive_blank_lines = 0
         output = ""
 
@@ -119,10 +102,5 @@ class FileProcessor:
             else:
                 print("Unrecognized character", file=sys.stderr)
                 return "" 
-
-        if self.args.number or self.args.number_nonblank:
-            output = f"{line_number}  {output}"
-
-        line_number += 1
 
         return output

@@ -11,13 +11,13 @@ def print_unbuffered_line(data=""):
 def is_blank_line(line: str) -> bool:
         return line.strip() == ""
 
-def format_output(line: str, args: Namespace) -> str:
+def format_output(line: str, line_number: int, args: Namespace) -> str:
     if args.number_nonblank:
         if line in ["$\n", "\n"]:
             return line
         else:
-            return line.rjust(len(line) + LINE_ADJUSTMENT)
+            return f"{line_number}  {line}".rjust(len(line) + LINE_ADJUSTMENT)
     elif args.number:
-        return line.rjust(len(line) + LINE_ADJUSTMENT)
+        return f"{line_number}  {line}".rjust(len(line) + LINE_ADJUSTMENT)
     else:
         return line

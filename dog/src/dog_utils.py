@@ -1,4 +1,4 @@
-from argparse import Namespace
+import dog_config as dc
 
 LINE_ADJUSTMENT = 8
 
@@ -11,13 +11,13 @@ def print_unbuffered_line(data=""):
 def is_blank_line(line: str) -> bool:
         return line.strip() == ""
 
-def format_output(line: str, line_number: int, args: Namespace) -> str:
-    if args.number_nonblank:
+def format_output(line: str, line_number: int, dog_config: dc.DogConfig) -> str:
+    if dog_config.show_nonblank_line_numbers():
         if line in ["$\n", "\n"]:
             return line
         else:
             return f"{line_number}  {line}".rjust(len(line) + LINE_ADJUSTMENT)
-    elif args.number:
+    elif dog_config.show_all_line_numbers():
         return f"{line_number}  {line}".rjust(len(line) + LINE_ADJUSTMENT)
     else:
         return line

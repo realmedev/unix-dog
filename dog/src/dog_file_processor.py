@@ -1,11 +1,11 @@
 import sys
 import dog_utils
-import argparse
+import dog_config as dc
 
 class FileProcessor:
-    def __init__(self, filepath: str, args: argparse.Namespace):
+    def __init__(self, filepath: str, dog_config: dc.DogConfig):
         self.filepath = filepath
-        self.args = args
+        self.dog_config = dog_config
         self.consecutive_blank_lines = 0
 
     def open(self):
@@ -31,17 +31,12 @@ class FileProcessor:
 
     def _process_control(self, c: str, c_value: int) -> str:
         if c == "\n":
-            if self.args.show_ends or self.args.show_all or self.args.e:
+            if self.dog_config.show_ends(): 
                 return "$\n"
             else:
                 return c
         elif c == "\t":
-            if self.args.show_tabs or self.args.t:
-                return "^I"
-            else:
-                return c
-        else:
-            if self.args.show_nonprinting or self.args.t or self.args.e or self.args.show_all:
+            if self.dog_config.show_nonprinting(): 
                 return "^{0}".format(chr(c_value + 64))
 
         return ""
@@ -56,7 +51,7 @@ class FileProcessor:
         return c == 127
 
     def _process_del(self) -> str:
-        if self.args.show_nonprinting or self.args.t or self.args.e or self.args.show_all:
+        if self.dog_config.show_nonprinting():
            return "^?"
         return ""
 
@@ -64,7 +59,7 @@ class FileProcessor:
         return c > 127 and c < 256
 
     def _process_extended_ascii(self, c_value: int) -> str:
-        if self.args.show_nonprinting or self.args.t or self.args.e or self.args.show_all:
+        if self.dog_config.show_nonprinting():
             if c_value < 160:
                 return "M-^{0}".format(chr(c_value - 128 + 64))
             else:
@@ -77,13 +72,10 @@ class FileProcessor:
 
     def _process_blank_line(self):
         self.consecutive_blank_lines += 1
-
-        if self.consecutive_blank_lines > 1 and self.args.squeeze_blank:
+        if self.consecutive_blank_lines > 1 and self.dog_config.squeeze_blank_lines():
             return ""
-
-        output = "$\n" if self.args.show_ends or self.args.show_all or self.args.e else "\n"
-
-        return output
+        else:
+            return "$\n" if self.dog_config.show_ends() else "\n"
 
     def _process_regular_line(self, line: str) -> str:
         self.consecutive_blank_lines = 0

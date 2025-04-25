@@ -2,23 +2,24 @@ import sys
 import dog_cli
 import dog_file_processor as fp
 import dog_utils
+import dog_config as dc
 
-def process_files(args):
+def process_files(dog_config: dc.DogConfig):
     line_number = 1
 
-    for filepath in args.FILE:
-        file_proc = fp.FileProcessor(filepath, args)
+    for filepath in dog_config.get_filepaths():
+        file_proc = fp.FileProcessor(filepath, dog_config)
         file_proc.open()
 
         while (line := file_proc.getline()) != "":
             output = file_proc.process_line(line)
-            output = dog_utils.format_output(output, line_number, args)
+            output = dog_utils.format_output(output, line_number, dog_config)
 
             if dog_utils.is_blank_line(line):
-                if args.number and not args.number_nonblank:
+                if dog_config.show_all_line_numbers():
                     line_number += 1
             else:
-                if args.number or args.number_nonblank:
+                if dog_config.show_all_line_numbers() or dog_config.show_nonblank_line_numbers():
                     line_number += 1
 
             dog_utils.print_unbuffered(output)
@@ -27,12 +28,13 @@ def process_files(args):
 
 def run_cli():
     args = dog_cli.parse_args()
+    dog_config = dc.DogConfig(args)
 
-    if args.version:
+    if dog_config.show_version():
         print("Version 1.0")
         sys.exit(0)
 
-    process_files(args)
+    process_files(dog_config)
 
 if __name__ == "__main__":
     run_cli()

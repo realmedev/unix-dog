@@ -36,10 +36,14 @@ class FileProcessor:
             else:
                 return c
         elif c == "\t":
-            if self.dog_config.show_nonprinting(): 
-                return "^{0}".format(chr(c_value + 64))
-
-        return ""
+            if self.dog_config.show_tabs():
+                return "^I"
+            else:
+                return c
+        elif self.dog_config.show_nonprinting():
+            return "^{0}".format(chr(c_value + 64))
+        else:
+            return ""
 
     def _is_alphanumeric(self, c: int) -> bool:
         return c >= 32 and c < 127

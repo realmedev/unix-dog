@@ -14,14 +14,7 @@ def process_files(dog_config: dc.DogConfig):
         while (line := file_proc.getline()) != "":
             output = file_proc.process_line(line)
             output = dog_utils.format_output(output, line_number, dog_config)
-
-            if dog_utils.is_blank_line(line):
-                if dog_config.show_all_line_numbers():
-                    line_number += 1
-            else:
-                if dog_config.show_all_line_numbers() or dog_config.show_nonblank_line_numbers():
-                    line_number += 1
-
+            line_number = dog_utils.step_line(line, dog_config)
             dog_utils.print_unbuffered(output)
 
         file_proc.close()

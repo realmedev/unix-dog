@@ -1,5 +1,5 @@
 import sys
-import utils
+import dog_utils
 import argparse
 
 class FileProcessor:
@@ -21,7 +21,7 @@ class FileProcessor:
         return self.file.readline()
 
     def process_line(self, line: str) -> str:
-        if utils.is_blank_line(line):
+        if dog_utils.is_blank_line(line):
             return self._process_blank_line()
         else:
             return self._process_regular_line(line)

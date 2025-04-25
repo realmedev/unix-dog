@@ -1,7 +1,7 @@
 import sys
-import cli
-import file_processor as fp
-import utils
+import dog_cli
+import dog_file_processor as fp
+import dog_utils
 
 def process_files(args):
     line_number = 1
@@ -12,21 +12,21 @@ def process_files(args):
 
         while (line := file_proc.getline()) != "":
             output = file_proc.process_line(line)
-            output = utils.format_output(output, line_number, args)
+            output = dog_utils.format_output(output, line_number, args)
 
-            if utils.is_blank_line(line):
+            if dog_utils.is_blank_line(line):
                 if args.number and not args.number_nonblank:
                     line_number += 1
             else:
                 if args.number or args.number_nonblank:
                     line_number += 1
 
-            utils.print_unbuffered(output)
+            dog_utils.print_unbuffered(output)
 
         file_proc.close()
 
 def run_cli():
-    args = cli.parse_args()
+    args = dog_cli.parse_args()
 
     if args.version:
         print("Version 1.0")

@@ -1,4 +1,3 @@
-import sys
 import argparse
 
 def parse_args() -> argparse.Namespace:
@@ -58,5 +57,3 @@ def create_parser() -> argparse.ArgumentParser:
                         default="-")
 #    parser.add_argument("--help", help="display this help and exit")
     return parser
-
-

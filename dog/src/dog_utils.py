@@ -1,7 +1,5 @@
 import dog_config as dc
 
-LINE_ADJUSTMENT = 8
-
 def print_unbuffered(data: str = ""):
     print(data, flush=True, end="")
 
@@ -16,8 +14,8 @@ def format_output(line: str, line_number: int, dog_config: dc.DogConfig) -> str:
         if line in ["$\n", "\n"]:
             return line
         else:
-            return f"{line_number}  {line}".rjust(len(line) + LINE_ADJUSTMENT)
+            return f"{line_number}  {line}".rjust(len(line) + dog_config.get_line_adjustment())
     elif dog_config.show_all_line_numbers():
-        return f"{line_number}  {line}".rjust(len(line) + LINE_ADJUSTMENT)
+        return f"{line_number}  {line}".rjust(len(line) + dog_config.get_line_adjustment())
     else:
         return line

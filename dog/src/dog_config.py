@@ -34,3 +34,6 @@ class DogConfig:
 
     def get_filepaths(self) -> list[str]:
         return self.args.FILE
+
+    def get_line_adjustment(self) -> int:
+        return 8

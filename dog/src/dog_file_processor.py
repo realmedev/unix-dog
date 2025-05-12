@@ -26,10 +26,10 @@ class FileProcessor:
         else:
             return self._process_regular_line(line)
 
-    def _is_control(self, c: int) -> bool:
-        return c >= 0 and c < 32
+    def _is_control(self, c: str) -> bool:
+        return ord(c) >= 0 and ord(c) < 32
 
-    def _process_control(self, c: str, c_value: int) -> str:
+    def _process_control(self, c: str) -> str:
         if c == "\n":
             if self.dog_config.show_ends(): 
                 return "$\n"
@@ -41,36 +41,36 @@ class FileProcessor:
             else:
                 return c
         elif self.dog_config.show_nonprinting():
-            return "^{0}".format(chr(c_value + 64))
+            return "^{0}".format(chr(ord(c) + 64))
         else:
             return ""
 
-    def _is_alphanumeric(self, c: int) -> bool:
-        return c >= 32 and c < 127
+    def _is_alphanumeric(self, c: str) -> bool:
+        return ord(c) >= 32 and ord(c) < 127
 
     def _process_alphanumeric(self, c: str) -> str:
         return c
 
-    def _is_del(self, c: int) -> bool:
-        return c == 127
+    def _is_del(self, c: str) -> bool:
+        return ord(c) == 127
 
     def _process_del(self) -> str:
         if self.dog_config.show_nonprinting():
            return "^?"
         return ""
 
-    def _is_extended_ascii(self, c: int) -> bool:
-        return c > 127 and c < 256
+    def _is_extended_ascii(self, c: str) -> bool:
+        return ord(c) > 127 and ord(c) < 256
 
-    def _process_extended_ascii(self, c_value: int) -> str:
+    def _process_extended_ascii(self, c: str) -> str:
         if self.dog_config.show_nonprinting():
-            if c_value < 160:
-                return "M-^{0}".format(chr(c_value - 128 + 64))
+            if ord(c) < 160:
+                return "M-^{0}".format(chr(ord(c) - 128 + 64))
             else:
-                if c_value == 255:
+                if (c) == 255:
                     return "M-^?"
                 else:
-                    return "M-{0}".format(chr(c_value - 160 + 32))
+                    return "M-{0}".format(chr(ord(c) - 160 + 32))
 
         return ""
 
@@ -86,15 +86,14 @@ class FileProcessor:
         output = ""
 
         for c in line:
-            c_value = ord(c)
-            if self._is_alphanumeric(c_value):
+            if self._is_alphanumeric(c):
                 output += self._process_alphanumeric(c)
-            elif self._is_control(c_value):
-                output += self._process_control(c, c_value)
-            elif self._is_del(c_value):
+            elif self._is_control(c):
+                output += self._process_control(c)
+            elif self._is_del(c):
                 output += self._process_del()
-            elif self._is_extended_ascii(c_value):
-                output += self._process_extended_ascii(c_value)
+            elif self._is_extended_ascii(c):
+                output += self._process_extended_ascii(c)
             else:
                 print("Unrecognized character", file=sys.stderr)
                 return "" 

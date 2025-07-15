@@ -8,6 +8,13 @@ class FileProcessor:
         self.dog_config = dog_config
         self.consecutive_blank_lines = 0
 
+    def __enter__(self):
+        self.open()
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.close()
+
     def open(self):
         if self.filepath == "-":
             self.file = sys.stdin

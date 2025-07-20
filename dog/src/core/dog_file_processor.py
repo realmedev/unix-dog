@@ -1,6 +1,6 @@
 import sys
-import dog_utils
-import dog_config as dc
+from utils import dog_utils
+from cli import dog_config as dc
 
 class FileProcessor:
     def __init__(self, filepath: str, dog_config: dc.DogConfig):

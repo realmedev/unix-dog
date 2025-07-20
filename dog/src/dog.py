@@ -1,8 +1,8 @@
 import sys
-import dog_cli
-import dog_file_processor as fp
-import dog_utils
-import dog_config as dc
+from cli import dog_cli
+from cli import dog_config as dc
+from core import dog_file_processor as fp
+from utils import dog_utils
 
 def process_files(dog_config: dc.DogConfig):
     line_number = 1

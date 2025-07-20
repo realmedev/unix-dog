@@ -1,4 +1,4 @@
-import dog_config as dc
+from src.cli import dog_config as dc
 
 def print_unbuffered(data: str = ""):
     print(data, flush=True, end="")

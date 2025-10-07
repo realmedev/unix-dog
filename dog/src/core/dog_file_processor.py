@@ -1,6 +1,6 @@
 import sys
-from utils import dog_utils
-from cli import dog_config as dc
+from src.utils import dog_utils
+from src.cli import dog_config as dc
 
 class FileProcessor:
     def __init__(self, filepath: str, dog_config: dc.DogConfig):
@@ -74,7 +74,7 @@ class FileProcessor:
             if ord(c) < 160:
                 return "M-^{0}".format(chr(ord(c) - 128 + 64))
             else:
-                if (c) == 255:
+                if (ord(c)) == 255:
                     return "M-^?"
                 else:
                     return "M-{0}".format(chr(ord(c) - 160 + 32))

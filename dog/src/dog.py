@@ -5,25 +5,17 @@ from core import dog_file_processor as fp
 from utils import dog_utils
 
 def process_files(dog_config: dc.DogConfig):
-    line_number = 1
-
+    file_proc = fp.FileProcessor(dog_config)
     for filepath in dog_config.get_filepaths():
-        file_proc = fp.FileProcessor(filepath, dog_config)
         try:
-            file_proc.open()
+            output = file_proc.process_file(filepath)
+            dog_utils.print_unbuffered(output)
         except FileNotFoundError:
             dog_utils.print_unbuffered_line("No such file or directory")
         except PermissionError:
             dog_utils.print_unbuffered_line("Permission denied")
         except IOError:
             dog_utils.print_unbuffered_line("Error while reading the file")
-        else:
-            with file_proc:
-                while (line := file_proc.getline()) != "":
-                    output = file_proc.process_line(line)
-                    output = dog_utils.format_output(output, line_number, dog_config)
-                    line_number = dog_utils.step_line(line, dog_config)
-                    dog_utils.print_unbuffered(output)
 
 def run_cli():
     args = dog_cli.parse_args()

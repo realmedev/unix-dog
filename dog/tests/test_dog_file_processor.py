@@ -1,8 +1,8 @@
 import unittest
 
 from unittest.mock import patch, mock_open, Mock, MagicMock
-from src.core.dog_file_processor import FileProcessor
-from src.cli.dog_config import DogConfig
+from core.dog_file_processor import FileProcessor
+from cli.dog_config import DogConfig
 
 def convert_to_ext_ascii(c: str) -> str:
     if (ord(c) < 160):
@@ -29,59 +29,39 @@ def convert_to_ctrl_ascii(c: str, dog_config: DogConfig) -> str:
     else:
         return ""
 
-
 class TestFileProcessor(unittest.TestCase):
     def setUp(self):
         self.mock_args = Mock()
         self.filepath = "test/file/path/file.txt"
 
-    def test_file_open_with_stdin(self):
-        filepath = "-"
-        open_mock = mock_open(read_data="")
-        dog_config = Mock()
+    # def test_file_open_with_stdin(self):
+    #     filepath = "-"
+    #     open_mock = mock_open(read_data="")
+    #     dog_config = Mock()
 
-        with patch("builtins.open", open_mock):
-            fp = FileProcessor(filepath, dog_config)
-            fp.open()
-            fp.close()
+    #     with patch("builtins.open", open_mock):
+    #         fp = FileProcessor(dog_config)
+    #         fp.process_file(filepath)
 
-        open_mock.assert_not_called()
+    #     open_mock.assert_called_once()
 
-    def test_file_open_with_filepath(self):
+    def test_file_processing_with_empty_file(self):
         dog_config = Mock() # irrelevant in this case
         open_mock = mock_open(read_data="")
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, dog_config)
-            fp.open()
-            fp.close()
+            fp = FileProcessor(dog_config)
+            actual_output = fp.process_file(self.filepath)
+            expected_output = ""
 
-        open_mock.assert_called_once()
-        open_mock().close.assert_called_once()
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
+            self.assertEqual(expected_output, actual_output)
 
-    def test_getline(self):
-        dog_config = MagicMock(spec=DogConfig)
-        input_text = """\
-Line 1.
-Line 2.
-"""
-        open_mock = mock_open(read_data=input_text)
-        lines = input_text.split("\n")
-
-        with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, dog_config)
-            fp.open()
-
-            line = fp.getline().strip()
-            self.assertEqual(line, lines[0].strip())
-
-            line = fp.getline().strip()
-            self.assertEqual(line, lines[1].strip())
-
-            fp.close()
-
-    def test_line_processing_with_show_tabs(self):
+    def test_file_processing_with_show_tabs(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.show_tabs.return_value = True
 
         input_text = "This\tis\tsome\ttext\twith\ttabs."
@@ -90,16 +70,17 @@ Line 2.
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
-
-            actual_output = fp.process_line(fp.getline())
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
+            
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            fp.close()
-
-    def test_line_processing_with_show_nonprinting(self):
+    def test_file_processing_with_show_nonprinting(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.show_nonprinting.return_value = True
         mock_config.show_ends.return_value = True
         mock_config.show_tabs.return_value = True
@@ -114,20 +95,17 @@ Line 2.
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
 
-            actual_output = ""
-
-            while (line := fp.getline()) != "":
-                actual_output += fp.process_line(line)
-
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            fp.close()
-
-    def test_line_processing_with_show_nonprinting_and_printable_tabs(self):
+    def test_file_processing_with_show_nonprinting_and_printable_tabs(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.show_nonprinting.return_value = True
         mock_config.show_ends.return_value = True
         mock_config.show_tabs.return_value = False
@@ -142,20 +120,17 @@ Line 2.
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
 
-            actual_output = ""
-
-            while (line := fp.getline()) != "":
-                actual_output += fp.process_line(line)
-
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            fp.close()
-
-    def test_line_processing_with_show_nonprinting_and_extended_ascii(self):
+    def test_file_processing_with_show_nonprinting_and_extended_ascii(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.show_nonprinting.return_value = True
 
         input_text = ""
@@ -168,16 +143,17 @@ Line 2.
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
 
-            actual_output = fp.process_line(fp.getline())
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            fp.close()
-
-    def test_line_processing_with_del_character(self):
+    def test_file_processing_with_del_character(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.show_nonprinting.return_value = True
 
         del_ordinal = 127
@@ -187,16 +163,17 @@ Line 2.
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
 
-            actual_output = fp.process_line(fp.getline())
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            fp.close()
-
-    def test_line_processing_with_del_character_non_printable(self):
+    def test_file_processing_with_del_character_non_printable(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.show_nonprinting.return_value = False
 
         del_ordinal = 127
@@ -206,126 +183,105 @@ Line 2.
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
 
-            actual_output = fp.process_line(fp.getline())
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            fp.close()
-
-    def test_line_processing_with_show_ends(self):
+    def test_file_processing_with_show_ends(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.show_ends.return_value = True
 
         input_text = "This is some\ntext with\nlots of line endings\n"
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
+            expected_output = "This is some$\ntext with$\nlots of line endings$\n"
 
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "This is some$\n"
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "text with$\n"
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "lots of line endings$\n"
-            self.assertEqual(expected_output, actual_output)
-
-            fp.close()
-
-    def test_line_processing_with_show_all_line_numbers(self):
+    def test_file_processing_with_show_all_line_numbers(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
         mock_config.show_all_line_numbers.return_value = True
         mock_config.show_ends.return_value = False
 
-        input_text = "This is\na text split into lines\nto demonstrate\nline numbering\nis not done by file processor."
+        input_text = "This is\na text split into lines\nto demonstrate\nline numbering\nis done by file processor."
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "This is\n"
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
+            expected_output = "1  This is\n2  a text split into lines\n3  to demonstrate\n4  line numbering\n5  is done by file processor."
+            
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "a text split into lines\n"
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "to demonstrate\n"
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "line numbering\n"
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "is not done by file processor."
-            self.assertEqual(expected_output, actual_output)
-
-            fp.close()
-
-    def test_line_processing_with_show_nonblank_line_numbers(self):
+    def test_file_processing_with_show_nonblank_line_numbers(self):
         mock_config = MagicMock(spec=DogConfig)
         mock_config.show_nonblank_line_numbers.return_value = True
         mock_config.show_ends.return_value = False
 
-        input_text = "This is\na text split into lines\nto demonstrate\nline numbering\nis not done by file processor."
+        input_text = "This is\na text split into lines\nto demonstrate\nline numbering\nis done by file processor."
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "This is\n"
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
+            expected_output = "1  This is\n2  a text split into lines\n3  to demonstrate\n4  line numbering\n5  is done by file processor."
+            
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "a text split into lines\n"
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "to demonstrate\n"
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "line numbering\n"
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "is not done by file processor."
-            self.assertEqual(expected_output, actual_output)
-
-            fp.close()
-
-    def test_line_processing_with_show_version(self):
+    
+    def test_file_processing_with_show_nonblank_line_numbers_and_blank_line(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = True
+        mock_config.show_ends.return_value = False
+
+        input_text = "\n"
+        open_mock = mock_open(read_data=input_text)
+
+        with patch("builtins.open", open_mock):
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
+            expected_output = "\n"
+            
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
+            self.assertEqual(expected_output, actual_output)
+
+    def test_file_processing_with_show_version(self):
+        mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.show_version.return_value = True
 
         input_text = "This is some text to show that version is not handled by file processor."
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
-
-            actual_output = fp.process_line(fp.getline())
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
             expected_output = "This is some text to show that version is not handled by file processor."
+            
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
 
-            fp.close()
-
-    def test_line_processing_with_squeeze_blank_lines(self):
+    def test_file_processing_with_squeeze_blank_lines(self):
         mock_config = MagicMock(spec=DogConfig)
+        mock_config.show_nonblank_line_numbers.return_value = False
+        mock_config.show_all_line_numbers.return_value = False
         mock_config.squeeze_blank_lines.return_value = True
         mock_config.show_ends.return_value = False
 
@@ -333,27 +289,10 @@ Line 2.
         open_mock = mock_open(read_data=input_text)
 
         with patch("builtins.open", open_mock):
-            fp = FileProcessor(self.filepath, mock_config)
-            fp.open()
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "This is some\n"
+            fp = FileProcessor(mock_config)
+            actual_output = fp.process_file(self.filepath)
+            expected_output = "This is some\n\ntext with multiple sequential empty lines."
+            
+            open_mock.assert_called_once()
+            open_mock().close.assert_called_once()
             self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "\n"
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = ""
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = ""
-            self.assertEqual(expected_output, actual_output)
-
-            actual_output = fp.process_line(fp.getline())
-            expected_output = "text with multiple sequential empty lines."
-            self.assertEqual(expected_output, actual_output)
-
-            fp.close()

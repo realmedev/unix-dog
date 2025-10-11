@@ -1,37 +1,44 @@
 import sys
-from src.utils import dog_utils
-from src.cli import dog_config as dc
+from io import TextIOWrapper
+
+from utils import dog_utils
+from cli import dog_config as dc
 
 class FileProcessor:
-    def __init__(self, filepath: str, dog_config: dc.DogConfig):
-        self.filepath = filepath
+    def __init__(self, dog_config: dc.DogConfig):
         self.dog_config = dog_config
+
+    def process_file(self, filepath: str):
         self.consecutive_blank_lines = 0
+        line_number = 1
+        output = ""
 
-    def __enter__(self):
-        self.open()
-        return self
+        file = self._open(filepath)
+        while (line := file.readline()) != "":
+            output += self._process_line(line, line_number)
+            line_number += self._get_line_increment(line)
+        self._close(file)
+        return output
 
-    def __exit__(self, exception_type, exception_value, traceback):
-        self.close()
-
-    def open(self):
-        if self.filepath == "-":
-            self.file = sys.stdin
-        else:
-            self.file = open(self.filepath, "r")
-
-    def close(self):
-        self.file.close()
-
-    def getline(self) -> str:
-        return self.file.readline()
-
-    def process_line(self, line: str) -> str:
+    def _process_line(self, line: str, line_number: int) -> str:
+        output_line = line
         if dog_utils.is_blank_line(line):
-            return self._process_blank_line()
+            output_line = self._process_blank_line()
         else:
-            return self._process_regular_line(line)
+            output_line = self._process_regular_line(line)
+        output_line = self._format(output_line, line_number)
+        return output_line
+
+    def _open(self, filepath: str):
+        file = None
+        if filepath == "-":
+            file = sys.stdin
+        else:
+            file = open(filepath, "r")
+        return file
+
+    def _close(self, file: TextIOWrapper):
+        file.close()
 
     def _is_control(self, c: str) -> bool:
         return ord(c) >= 0 and ord(c) < 32
@@ -106,3 +113,23 @@ class FileProcessor:
                 return "" 
 
         return output
+
+    def _get_line_increment(self, line: str) -> int:
+        if dog_utils.is_blank_line(line):
+            if self.dog_config.show_all_line_numbers():
+                return 1
+        else:
+            if self.dog_config.show_all_line_numbers() or self.dog_config.show_nonblank_line_numbers():
+                return 1
+        return 0
+
+    def _format(self, line: str, line_number: int) -> str:
+        if self.dog_config.show_nonblank_line_numbers():
+            if line in ["$\n", "\n"]:
+                return line
+            else:
+                return f"{line_number}  {line}".rjust(len(line) + self.dog_config.get_line_adjustment())
+        elif self.dog_config.show_all_line_numbers():
+            return f"{line_number}  {line}".rjust(len(line) + self.dog_config.get_line_adjustment())
+        else:
+            return line

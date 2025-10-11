@@ -1,7 +1,7 @@
 import sys
 from io import TextIOWrapper
 
-from utils import dog_utils
+from utils import dog_utils as du
 from cli import dog_config as dc
 
 class FileProcessor:
@@ -18,11 +18,12 @@ class FileProcessor:
             output += self._process_line(line, line_number)
             line_number += self._get_line_increment(line)
         self._close(file)
+        
         return output
 
     def _process_line(self, line: str, line_number: int) -> str:
         output_line = line
-        if dog_utils.is_blank_line(line):
+        if du.is_blank_line(line):
             output_line = self._process_blank_line()
         else:
             output_line = self._process_regular_line(line)
@@ -115,7 +116,7 @@ class FileProcessor:
         return output
 
     def _get_line_increment(self, line: str) -> int:
-        if dog_utils.is_blank_line(line):
+        if du.is_blank_line(line):
             if self.dog_config.show_all_line_numbers():
                 return 1
         else:

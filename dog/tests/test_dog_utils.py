@@ -1,6 +1,6 @@
 import unittest
 
-from src.utils import dog_utils
+from utils import dog_utils
 from unittest.mock import patch, Mock
 
 class DogUtilsTestCase(unittest.TestCase):

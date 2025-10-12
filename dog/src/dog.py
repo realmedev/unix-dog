@@ -17,7 +17,7 @@ def process_files(dog_config: dc.DogConfig):
         except IOError:
             du.print_unbuffered_line("Error while reading the file")
 
-def run_cli():
+def dog_run():
     args = dp.parse_args()
     dog_config = dc.DogConfig(args)
 
@@ -28,4 +28,4 @@ def run_cli():
     process_files(dog_config)
 
 if __name__ == "__main__":
-    run_cli()
+    dog_run()

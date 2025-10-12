@@ -18,7 +18,7 @@ class FileProcessor:
         file = self._open(filepath)
 
         while (line := file.readline()) != "":
-            if du.is_blank_line(line):
+            if self.line_processor.is_blank_line(line):
                 self._increment_blank_count()
                 if self._skip_blank():
                     continue
@@ -53,7 +53,7 @@ class FileProcessor:
         return (self.consecutive_blank_lines > 1) and self.dog_config.squeeze_blank_lines()
 
     def _get_line_increment(self, line: str) -> int:
-        if du.is_blank_line(line):
+        if self.line_processor.is_blank_line(line):
             if self.dog_config.show_all_line_numbers():
                 return 1
         else:
@@ -66,9 +66,12 @@ class _LineProcessor:
     def __init__(self, dog_config: dc.DogConfig):
         self.dog_config = dog_config
 
+    def is_blank_line(self, line: str) -> bool:
+        return line.strip() == ""
+
     def process_line(self, line: str, line_number: int) -> str:
         output_line = line
-        if du.is_blank_line(line):
+        if self.is_blank_line(line):
             output_line = self._process_blank_line()
         else:
             output_line = self._process_regular_line(line)

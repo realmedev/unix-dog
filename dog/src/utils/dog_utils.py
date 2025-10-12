@@ -5,4 +5,4 @@ def print_unbuffered_line(data=""):
     print(data, flush=True)
 
 def is_blank_line(line: str) -> bool:
-        return line.strip() == ""
+    return line.strip() == ""

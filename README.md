@@ -1,2 +1,3 @@
-# unix-clones
-This repository contains clones of various UNIX utilities developed in different programming languages.
+# unix-dog
+
+This repository represents a clone of a well-known UNIX "cat" utility.

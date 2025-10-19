@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dog"
+version = "1.0.0"
+authors = [
+  { name="realme", email="realme@realmedev.com" },
+]
+description = "dog utility which is a clone of the well known UNIX utility \"cat\""
+readme = "README.md"
+requires-python = ">=3.13.5"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/realmedev/unix-dog/tree/main"
+Issues = "https://github.com/realmedev/unix-dog/issues"

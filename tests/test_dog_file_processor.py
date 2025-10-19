@@ -1,8 +1,8 @@
 import unittest
 
 from unittest.mock import patch, mock_open, Mock, MagicMock
-from core.dog_file_processor import FileProcessor
-from cli.dog_config import DogConfig
+from dog.core.dog_file_processor import FileProcessor
+from dog.cli.dog_config import DogConfig
 
 def convert_to_ext_ascii(c: str) -> str:
     if (ord(c) < 160):

@@ -2,7 +2,7 @@ import unittest
 import itertools
 
 from unittest.mock import Mock
-from src.cli.dog_config import DogConfig
+from dog.cli.dog_config import DogConfig
 
 class TestDogConfig(unittest.TestCase):
     def setUp(self):

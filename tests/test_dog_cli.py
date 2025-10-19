@@ -1,7 +1,7 @@
 from argparse import Action
 import unittest
 
-from src.cli import dog_cli as cli
+from dog.cli import dog_cli as cli
 
 def has_option(action: Action) -> bool:
     return len(action.option_strings) != 0
